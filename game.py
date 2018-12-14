@@ -9,7 +9,12 @@ class Game:
         # Initialize all pygame modules
         pygame.init()
 
-        self.mainView = MainView()
+        self.mainView = main_view.MainView()
+
+        self.tile = tiler.Tiles()
+        print(self.tile.feijao)
+
+        self.clock = pygame.time.Clock()
 
     def handleInput(self):
         for event in pygame.event.get():
