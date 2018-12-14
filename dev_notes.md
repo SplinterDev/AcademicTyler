@@ -20,3 +20,11 @@
 ## Dependencies
 * Pygame (obviously)
 * point2d (?)
+
+## Git
+
+### Branches
+
+* New features: prefix "f_"
+* Bug fix: prefix "b_"
+* Refactoring: prefix "f_"
