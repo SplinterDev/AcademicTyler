@@ -1,5 +1,3 @@
-from controllers import *
-from models import *
 from views import *
 import pygame
 from pygame.locals import *
@@ -9,26 +7,21 @@ class Game:
         # Initialize all pygame modules
         pygame.init()
 
-        self.mainView = main_view.MainView()
-
-        self.tile = tiler.Tiles()
-        print(self.tile.feijao)
+        self.mainView = MainView()
 
         self.clock = pygame.time.Clock()
 
     def handleInput(self):
+        # Updates event queue and checks for QUIT event
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
 
-            elif event.type == KEYDOWN:
-                # is this ugly?
-                # is this pretty?
-                # who knows man
-                # who...
-                # knows...
-                if event.key == K_a:
-                    print("Pressed a.")
+        # Check for other key presses
+        keys = pygame.key.get_pressed()
+
+        if keys[K_a]:
+            print('a')
 
     def run(self):
         self.run = True
@@ -39,6 +32,11 @@ class Game:
             self.handleInput()
 
             self.clock.tick(60)
+
+        # Loop has finished, let's end the game
+        self.mainView.quit()
+
+        pygame.quit()
 
 if __name__ == "__main__":
     game = Game()

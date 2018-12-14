@@ -14,16 +14,6 @@ class MainView:
         self._screen = None
         self._backgroundColor = BACKGROUND_COLOR
 
-        self._clock = pygame.time.Clock()
-        self._fps = 60 # please change this at some point
-
-        # each key points to a function
-        self.keys = {
-            K_ESCAPE: self.quit
-        }
-
-        self.run = True
-
         self._screen = pygame.display.set_mode(self._size)
         pygame.display.set_caption(window_caption)
 
@@ -77,14 +67,12 @@ class MainView:
         self.drawTiles()
 
         pygame.display.flip()
-        self._clock.tick(self._fps)
 
     def quit(self):
         self.run = False
         # https://stackoverflow.com/questions/19882415/closing-pygame-window
         print("View is quitting")
         pygame.display.quit()
-        pygame.quit()
 
 #############################################################
 # this has to go to the controller (that doesn't exist yet) #
