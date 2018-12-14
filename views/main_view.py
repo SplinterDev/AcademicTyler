@@ -2,10 +2,8 @@ import pygame
 print("Shut up pygame, community! :(")
 from constants import *
 
-
-
-class View:
-    def __init__(self, width=1024, height=576):
+class MainView:
+    def __init__(self, width=1024, height=576, window_caption="Tyler"):
         # comentarios em ingles ou portugues?
         # lets use @property because yes boi
         # https://www.programiz.com/python-programming/property
@@ -26,6 +24,9 @@ class View:
 
         self.run = True
 
+        self._screen = pygame.display.set_mode(self._size)
+        pygame.display.set_caption(window_caption)
+
     # we dont need this but it's a nice example
     @property
     def width(self):
@@ -44,15 +45,6 @@ class View:
     def height(self, val):
         self._height = val
         self._size   = (self._width, self._height)
-
-    def init(self):
-        # this method is used because we might want to
-        # pass an argument or something that doesn't 
-        # necessarily has anything to do with the constructor
-        # or whatevers, idk
-        pygame.init()
-        self._screen = pygame.display.set_mode(self._size)
-        pygame.display.set_caption("Tyler")
 
     def blitSurface(self, surface, position):
         self._screen.blit(surface, position)
@@ -97,29 +89,6 @@ class View:
 #############################################################
 # this has to go to the controller (that doesn't exist yet) #
 #############################################################
-def handleEvents(view):
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            view.quit()
-        elif event.type == KEYDOWN:
-            # is this ugly?
-            # is this pretty?
-            # who knows man
-            # who...
-            # knows...
-            if event.key in view.keys:
-                view.keys[event.key]()
-
-
-def update(view):
-    # draw screen from last loop
-    view.update()
-    # handle events
-    handleEvents(view)
-    # do stuff for next loop
-
-
-
 
 if __name__ == '__main__':
     view = View()
