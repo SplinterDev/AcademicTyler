@@ -23,13 +23,24 @@ class Game:
         if keys[K_a]:
             print('a')
 
+        # Check for mouse events
+        mouse_btns = pygame.mouse.get_pressed()
+        mouse_pos = pygame.mouse.get_pos()
+
+        if mouse_btns[0] == True:
+            self.mainView.handleInput((1, mouse_pos))
+
     def run(self):
         self.run = True
 
         while self.run:
-            self.mainView.update()
-
+            # Handle inputs
             self.handleInput()
+
+            # Update Game States
+
+            # Render Screen
+            self.mainView.draw()
 
             self.clock.tick(60)
 
