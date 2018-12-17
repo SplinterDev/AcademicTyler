@@ -1,5 +1,4 @@
 import pygame
-print("Shut up pygame, community! :(")
 from constants import *
 from pygame.locals import *
 from pygame.color import Color

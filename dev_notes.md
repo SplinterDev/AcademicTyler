@@ -27,4 +27,4 @@
 
 * New features: prefix "f_"
 * Bug fix: prefix "b_"
-* Refactoring: prefix "f_"
+* Refactoring: prefix "r_"
