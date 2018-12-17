@@ -1,4 +1,4 @@
-from views import *
+from views_system import *
 import pygame
 from pygame.locals import *
 
