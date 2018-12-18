@@ -1,7 +1,7 @@
 from views_system import *
 import pygame
-from pygame.locals import *
 from random import sample
+from constants import *
 
 class Game:
     def __init__(self):
@@ -9,16 +9,27 @@ class Game:
         pygame.init()
 
         self.mainView = MainView()
-        self.mainView.attachClickCallback('btn', self.moveButton)
+        self.mainView.setClickCallback('btn', Mouse.BUTTON1, self.moveButtonLeft)
+        self.mainView.setClickCallback('btn', Mouse.BUTTON2, self.epilepsy)
+        self.mainView.setClickCallback('btn', Mouse.BUTTON3, self.moveButtonRight)
 
         self.clock = pygame.time.Clock()
 
     # TODO this is just an example function.
-    def moveButton(self):
+    def epilepsy(self):
         self.mainView.subviews_dict['btn']._background = Color(sample(pygame.colordict.THECOLORS.keys(), 1)[0])
         self.mainView.subviews_dict[0]._background = Color(sample(pygame.colordict.THECOLORS.keys(), 1)[0])
         self.mainView.subviews_dict[1]._background = Color(sample(pygame.colordict.THECOLORS.keys(), 1)[0])
         self.mainView.subviews_dict[2]._background = Color(sample(pygame.colordict.THECOLORS.keys(), 1)[0])
+
+    def moveButtonRight(self):
+        self.mainView.subviews_dict['btn'].move((5,0))
+
+    def moveButtonLeft(self):
+        self.mainView.subviews_dict['btn'].move((-5,0))
+
+
+
 
     def handleInput(self):
         # Updates event queue and checks for QUIT event

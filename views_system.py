@@ -1,6 +1,6 @@
 import pygame
 from pygame.color import Color
-from constants import WIDTH, HEIGHT
+from constants import *
 
 class View:
     def __init__(self, size, rel_pos=(0,0), parent=None, color_name="black", debug_name=""):
@@ -27,7 +27,12 @@ class View:
         self._background = Color(color_name)
         self._debug_name = debug_name
 
-        self._click_cb = None
+
+        self._click_cb = {
+            Mouse.BUTTON1: None,
+            Mouse.BUTTON2: None,
+            Mouse.BUTTON3: None,
+        }
 
     def draw(self):
         self._surface.fill(self._background)
@@ -56,12 +61,45 @@ class View:
     def blit(self, view):
         self._surface.blit(view.getSurface(), view.getRelTopLeft())
 
-    def onClick(self):
-        if self._click_cb:
-            self._click_cb()
+    def onClick(self, mouse_btns):
+        # python's enum is dumb
+        if mouse_btns[Mouse.BUTTON1.value] and self._click_cb[Mouse.BUTTON1]:
+            self._click_cb[Mouse.BUTTON1]()
+        if mouse_btns[Mouse.BUTTON2.value] and self._click_cb[Mouse.BUTTON2]:
+            self._click_cb[Mouse.BUTTON2]()
+        if mouse_btns[Mouse.BUTTON3.value] and self._click_cb[Mouse.BUTTON3]:
+            self._click_cb[Mouse.BUTTON3]()
+        # for btn in mouse_btns:
+        #     try:
+        #         self._click_cbs[btn]()
+        #     except Exception:
+        #         pass
 
     def addSubView(self, view):
         self._subviews.append(view)
+
+    def move(self, increments):
+        new_x = self.rel_pos[0] + increments[0]
+        new_y = self.rel_pos[1] + increments[1]
+        self.rel_pos = (new_x, new_y)
+
+
+    # GETTERS AND SETTERS
+    @property
+    def rel_pos(self):
+        return self._rel_rect.topleft
+
+    @rel_pos.setter
+    def rel_pos(self, pos):
+        self._rel_rect.topleft = pos
+
+        if self._parent:
+            abs_x = pos[0] + self._parent.getAbsRect().x
+            abs_y = pos[1] + self._parent.getAbsRect().y
+        else:
+            abs_x = pos[0]
+            abs_y = pos[1]
+        self._abs_rect.topleft = (abs_x, abs_y)
 
     def getAbsRect(self):
         return self._abs_rect
@@ -78,8 +116,8 @@ class View:
     def getSize(self):
         return _rect.size
 
-    def setClickCallback(self, cb_fn):
-        self._click_cb = cb_fn
+    def setClickCallback(self, mouse_btn, cb_fn):
+        self._click_cb[mouse_btn] = cb_fn
 
     def __str__(self):
         return "View {} at {}(abs)".format(self._debug_name, self._abs_rect)
@@ -112,18 +150,18 @@ class MainView(View):
 
         View((100,100), (50,50), self.subviews_dict[1], "dodgerblue1", debug_name="sub topleft")
         View((100,100), (150,50), self.subviews_dict[1], "darkorchid1", debug_name="sub topright")
-        last_view = View((200,150), (50,50), self.subviews_dict[2], "deeppink1", debug_name="last_view")
+        last_view = View((300,250), (50,50), self.subviews_dict[2], "deeppink1", debug_name="last_view")
 
         self.subviews_dict['btn'] = View((100,100), (25,25), last_view, "firebrick2", debug_name="btn")
 
         self.printViewTree()
 
-    def attachClickCallback(self, view_name, cb_fn):
-        self.subviews_dict[view_name].setClickCallback(cb_fn)
+    def setClickCallback(self, view_name, mouse_btn, cb_fn):
+        self.subviews_dict[view_name].setClickCallback(mouse_btn, cb_fn)
 
     def handleMouseEvents(self, mouse_pos, mouse_btns):
         if 1 in mouse_btns:
-            self.getClickedInstance(mouse_pos).onClick()
+            self.getClickedInstance(mouse_pos).onClick(mouse_btns)
 
     def draw(self):
         for view in self._subviews:
