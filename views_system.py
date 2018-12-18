@@ -35,6 +35,27 @@ class View:
             view.draw()
             self.blit(view)
 
+    def printViewTree(self):
+        print(self)
+        if len(self._subviews) > 0:
+            for subview in self._subviews:
+                subview.printViewTree()
+
+    # Recursively iterates through all subviews until the clicked leaf (view)
+    # is found and returns its instance.
+    def getClickedInstance(self, mouse_pos):
+        # Does this view has subviews?
+        if len(self._subviews) > 0:
+            for s in self._subviews: # For each subview
+                if s.getAbsRect().collidepoint(mouse_pos): # Was the subview clicked?
+                    return s.getClickedInstance(mouse_pos) # It's his problem now
+
+        return self
+
+    # blit receives a View
+    def blit(self, view):
+        self._surface.blit(view.getSurface(), view.getRelTopLeft())
+
     def addSubView(self, view):
         self._subviews.append(view)
 
@@ -47,25 +68,14 @@ class View:
     def getRelTopLeft(self):
         return self._rel_rect.topleft
 
-    # blit receives a View
-    def blit(self, view):
-        self._surface.blit(view.getSurface(), view.getRelTopLeft())
-
     def getSurface(self):
         return self._surface
 
     def getSize(self):
         return _rect.size
 
-    def printViewTree(self):
-        print(self)
-        if len(self._subviews) > 0:
-            for subview in self._subviews:
-                subview.printViewTree()
-
     def __str__(self):
         return "View {} at {}(abs)".format(self._debug_name, self._abs_rect)
-
 
 
 class MainView(View):
@@ -93,7 +103,7 @@ class MainView(View):
         rel_pos = (WIDTH*0.25, HEIGHT/2.)
         midbottom = View(size, rel_pos , self, "darksalmon", debug_name="midbottom")
 
-        View((100,100), (50,50), topleft, "dodgerblue1", debug_name="sub topleft")
+        View((100,100), (50,50), topright, "dodgerblue1", debug_name="sub topleft")
         View((100,100), (150,50), topright, "darkorchid1", debug_name="sub topright")
         last_view = View((200,150), (50,50), midbottom, "deeppink1", debug_name="last_view")
 
@@ -103,9 +113,9 @@ class MainView(View):
 
     def handleMouseEvents(self, mouse_pos, mouse_btns):
         if 1 in mouse_btns:
-            print("Mouse status: {} at {}".format(mouse_btns, mouse_pos))
+            clicked_inst = self.getClickedInstance(mouse_pos)
 
-
+            print(clicked_inst)
 
 
     def draw(self):
