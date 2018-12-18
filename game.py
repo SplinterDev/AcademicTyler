@@ -28,7 +28,8 @@ class Game:
         mouse_pos = pygame.mouse.get_pos()
 
         if mouse_btns[0] == True:
-            self.mainView.handleInput((1, mouse_pos))
+            # self.mainView.handleInput((1, mouse_pos))
+            pass
 
     def run(self):
         self.run = True
