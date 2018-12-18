@@ -16,6 +16,7 @@
 
 * MVC please!
 * SplinterDev is using Python 3.5.2 and PyGame 1.9.4
+* ThisIsAClass, this_is_an_attribute, thisIsAMethod()
 
 ## Dependencies
 * Pygame (obviously)
@@ -27,4 +28,4 @@
 
 * New features: prefix "f_"
 * Bug fix: prefix "b_"
-* Refactoring: prefix "f_"
+* Refactoring: prefix "r_"
