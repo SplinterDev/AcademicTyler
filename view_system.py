@@ -20,7 +20,7 @@ class View:
             parent.addSubView(self)
 
         self._subviews = []
-        self._background = Color(color_name)
+        self._background_color = Color(color_name)
         self._debug_name = debug_name
 
         self._click_cb = {
@@ -41,7 +41,7 @@ class View:
         self._abs_rect = pygame.Rect((abs_x, abs_y), self._rel_rect.size)
 
     def draw(self):
-        self._surface.fill(self._background)
+        self._surface.fill(self._background_color)
         for view in self._subviews:
             view.draw()
             self.blit(view)
@@ -113,14 +113,14 @@ class View:
     def addSubView(self, view):
         self._subviews.append(view)
 
-    # _background #####################
+    # _background_color #####################
     @property
-    def background(self):
-        return self._background
+    def background_color(self):
+        return self._background_color
 
-    @background.setter
-    def background(self, color_name):
-        self._background = Color(color_name)
+    @background_color.setter
+    def background_color(self, color_name):
+        self._background_color = Color(color_name)
 
     # _click_cb #######################
     def setClickCallback(self, mouse_btn, cb_fn):
@@ -148,11 +148,11 @@ class MainView(View):
     def createSubViews(self):
         self.subviews_dict['render'] = RenderView()
         self.subviews_dict['render'].parent = self
-        self.subviews_dict['render'].background = "palegreen3"
+        self.subviews_dict['render'].background_color = "palegreen3"
 
         self.subviews_dict['hud'] = HUDView()
         self.subviews_dict['hud'].parent = self
-        self.subviews_dict['hud'].background = "royalblue2"
+        self.subviews_dict['hud'].background_color = "royalblue2"
 
     def setClickCallback(self, view_name, mouse_btn, cb_fn):
         self.subviews_dict[view_name].setClickCallback(mouse_btn, cb_fn)
