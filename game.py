@@ -1,4 +1,4 @@
-from views_system import *
+from view_system import *
 import pygame
 from random import sample
 from constants import *
