@@ -28,7 +28,14 @@ class Game:
             if event.type == pygame.MOUSEBUTTONUP:
                 pass
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pass
+                if event.button == 4:
+                    self._mainView.zoomMap(Zoom.IN)
+                    print("wheel up")
+                if event.button == 5:
+                    self._mainView.zoomMap(Zoom.OUT)
+                    print("wheel down")
+
+            # print(event)
 
         # Check for other key presses
         keys_pressed = pygame.key.get_pressed()

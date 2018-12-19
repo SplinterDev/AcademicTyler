@@ -44,7 +44,7 @@ class View:
 
     def loadImage(self, img_path):
         self._image    = img_path
-        self._surface  = pygame.image.load(img_path)
+        self._surface  = pygame.image.load(img_path).convert()
         self._rel_rect.topleft = self.rel_pos
         self._rel_rect.size    = self._surface.get_size()
         self._setAbsRect()
@@ -170,6 +170,8 @@ class MainView(View):
 
         self.subviews_dict = {}
         self.createSubViews()
+        self._map_zoom = 1
+        self._map_original_size = self.subview("render").subview("map").getSize()
 
     def createSubViews(self):
         self.subviews_dict["render"] = RenderView()
@@ -196,6 +198,23 @@ class MainView(View):
             self.blit(view)
 
         pygame.display.flip()
+
+    def zoomMap(self, direction):
+        if direction == Zoom.IN and self._map_zoom <= MAX_ZOOM:
+            self._map_zoom += ZOOM_SPEED
+
+        if direction == Zoom.OUT and self._map_zoom >= MIN_ZOOM:
+            self._map_zoom -= ZOOM_SPEED
+
+        print("zoom:{}, size:{}".format(self._map_zoom,
+            self.subview("render").subview("map").getSize()))
+
+
+        new_size = (int(self._map_original_size[0]*self._map_zoom),
+                    int(self._map_original_size[1]*self._map_zoom))
+        self.subview("render").subview("map").resize(new_size)
+
+
 
     def moveMap(self, direction):
         map_view = self.subview("render").subview("map")
@@ -236,6 +255,7 @@ class RenderView(View):
         self.subviews_dict["map"].loadImage("test_img.jpg")
         # self.subviews_dict["map"].clearImage()
         # self.subviews_dict["map"].resize(self.subviews_dict["map"].parent.getSize())
+        # self.subviews_dict["map"].resize((100,100))
 
     def subview(self, name):
         return self.subviews_dict[name]
