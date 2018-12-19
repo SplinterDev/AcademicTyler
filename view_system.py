@@ -106,7 +106,7 @@ class View:
     @rel_pos.setter
     def rel_pos(self, pos):
         self._rel_rect.topleft = pos
-        self._setAbsRect(self._parent)
+        self._setAbsRect()#self._parent)
 
     # _surface ########################
     def getSurface(self):
@@ -172,13 +172,16 @@ class MainView(View):
         self.createSubViews()
 
     def createSubViews(self):
-        self.subviews_dict['render'] = RenderView()
-        self.subviews_dict['render'].parent = self
-        self.subviews_dict['render'].background_color = "palegreen3"
+        self.subviews_dict["render"] = RenderView()
+        self.subviews_dict["render"].parent = self
+        self.subviews_dict["render"].background_color = "palegreen3"
 
-        self.subviews_dict['hud'] = HUDView()
-        self.subviews_dict['hud'].parent = self
-        self.subviews_dict['hud'].background_color = "royalblue2"
+        self.subviews_dict["hud"] = HUDView()
+        self.subviews_dict["hud"].parent = self
+        self.subviews_dict["hud"].background_color = "royalblue2"
+
+    def subview(self, name):
+        return self.subviews_dict[name]
 
     def setClickCallback(self, view_name, mouse_btn, cb_fn):
         self.subviews_dict[view_name].setClickCallback(mouse_btn, cb_fn)
@@ -194,6 +197,30 @@ class MainView(View):
 
         pygame.display.flip()
 
+    def moveMap(self, direction):
+        map_view = self.subview("render").subview("map")
+        old_pos = map_view.rel_pos
+        if direction == K_UP:
+            if old_pos[1]+MAP_SPEED <= 0:
+                map_view.rel_pos = (old_pos[0], old_pos[1]+MAP_SPEED)
+
+        if direction == K_RIGHT:
+            # max_x is the width of the render minus the width of the map
+            max_x = self.subview("render").getSize()[0]-map_view.getSize()[0]
+            if old_pos[0]-MAP_SPEED >= max_x:
+                map_view.rel_pos = (old_pos[0]-MAP_SPEED, old_pos[1])
+
+        if direction == K_DOWN:
+            # max_y is the height of the render minus the height of the map
+            max_y = self.subview("render").getSize()[1]-map_view.getSize()[1]
+            if old_pos[1]-MAP_SPEED >= max_y:
+                map_view.rel_pos = (old_pos[0], old_pos[1]-MAP_SPEED)
+
+        if direction == K_LEFT:
+            if old_pos[0]+MAP_SPEED <= 0:
+                map_view.rel_pos = (old_pos[0]+MAP_SPEED, old_pos[1])
+
+
     def quit(self):
         self.run = False
         # https://stackoverflow.com/questions/19882415/closing-pygame-window
@@ -208,7 +235,10 @@ class RenderView(View):
         self.subviews_dict["map"].background_color = "coral1"
         self.subviews_dict["map"].loadImage("test_img.jpg")
         # self.subviews_dict["map"].clearImage()
-        self.subviews_dict["map"].resize(self.subviews_dict["map"].parent.getSize())
+        # self.subviews_dict["map"].resize(self.subviews_dict["map"].parent.getSize())
+
+    def subview(self, name):
+        return self.subviews_dict[name]
 
 
 class HUDView(View):

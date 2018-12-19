@@ -8,29 +8,46 @@ class Game:
         # Initialize all pygame modules
         pygame.init()
 
-        self.mainView = MainView()
-        self.mainView.setClickCallback('render', Mouse.BUTTON1, lambda:print("raindeer"))
-        self.mainView.setClickCallback('hud', Mouse.BUTTON1, lambda:print("hudson"))
+        self._mainView = MainView()
+        self._mainView.setClickCallback("render", Mouse.BUTTON1, lambda:print("raindeer"))
+        self._mainView.setClickCallback("hud", Mouse.BUTTON1, lambda:print("hudson"))
 
-        self.clock = pygame.time.Clock()
+        self._clock = pygame.time.Clock()
 
     def handleInput(self):
         # Updates event queue and checks for QUIT event
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
+            if event.type == pygame.KEYDOWN:
+                pass
+            if event.type == pygame.KEYUP:
+                pass
+            if event.type == pygame.MOUSEMOTION:
+                pass
+            if event.type == pygame.MOUSEBUTTONUP:
+                pass
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pass
 
         # Check for other key presses
-        keys = pygame.key.get_pressed()
+        keys_pressed = pygame.key.get_pressed()
+        if keys_pressed[K_UP]:
+            self._mainView.moveMap(K_UP)
+        if keys_pressed[K_RIGHT]:
+            self._mainView.moveMap(K_RIGHT)
+        if keys_pressed[K_DOWN]:
+            self._mainView.moveMap(K_DOWN)
+        if keys_pressed[K_LEFT]:
+            self._mainView.moveMap(K_LEFT)
 
-        if keys[K_a]:
-            print('a')
+
 
         # Check for mouse events
         mouse_btns = pygame.mouse.get_pressed()
         mouse_pos = pygame.mouse.get_pos()
 
-        self.mainView.handleMouseEvents(mouse_pos, mouse_btns)
+        self._mainView.handleMouseEvents(mouse_pos, mouse_btns)
 
     def run(self):
         self.run = True
@@ -42,12 +59,12 @@ class Game:
             # Update Game States
 
             # Render Screen
-            self.mainView.draw()
+            self._mainView.draw()
 
-            self.clock.tick(60)
+            self._clock.tick(60)
 
         # Loop has finished, let's end the game
-        self.mainView.quit()
+        self._mainView.quit()
 
         pygame.quit()
 
