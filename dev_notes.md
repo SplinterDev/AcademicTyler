@@ -49,6 +49,7 @@ Finishing the branch:
 git checkout master
 git merge --no-ff release-x.y.z
 git tag -a x.y.z
+git push origin x.y.z
 ```
 To keep changes in the release branch, merge it back into develop and remove release branch:
 ```
