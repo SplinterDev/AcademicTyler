@@ -35,7 +35,7 @@ git push origin develop
 ```
 
 #### Release Branches
-May only branch off from develop and must merge back into develop and master. Naming convention is "release-*".
+May only branch off from develop and must merge back into develop and master. Naming convention is "release-x.y.z".
 
 To create:
 ```
