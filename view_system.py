@@ -126,6 +126,10 @@ class View:
     # _rel_rect #######################
     def getRelRect(self):
         return self._rel_rect
+
+    # size ############################
+    def getSize(self):
+        return self._rel_rect.size
     
     # _abs_rect #######################
     def getAbsRect(self):
@@ -204,7 +208,8 @@ class RenderView(View):
         self.subviews_dict["map"].background_color = "coral1"
         self.subviews_dict["map"].loadImage("test_img.jpg")
         # self.subviews_dict["map"].clearImage()
-        self.subviews_dict["map"].resize((100,100))
+        self.subviews_dict["map"].resize(self.subviews_dict["map"].parent.getSize())
+
 
 class HUDView(View):
     def __init__(self):
