@@ -35,11 +35,11 @@ git push origin develop
 ```
 
 #### Release Branches
-May only branch off from develop and must merge back into develop and master. Naming convention is "release-*".
+May only branch off from develop and must merge back into develop and master. Naming convention is "release-x.y.z".
 
 To create:
 ```
-git checkout -b release-x.y.z develop`
+git checkout -b release-x.y.z develop
 # bump version
 git commit -a -m "Bumped version number to x.y.z"
 ```
