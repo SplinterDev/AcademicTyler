@@ -9,6 +9,9 @@ class Game:
         pygame.init()
 
         self.mainView = MainView()
+        self.mainView.setClickCallback('render', Mouse.BUTTON1, lambda:print("raindeer"))
+        self.mainView.setClickCallback('hud', Mouse.BUTTON1, lambda:print("hudson"))
+
         self.clock = pygame.time.Clock()
 
     def handleInput(self):

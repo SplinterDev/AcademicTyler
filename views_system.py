@@ -99,6 +99,7 @@ class View:
     def parent(self, p):
         self._parent = p
         self._setAbsRect(p)
+        p.addSubView(self)
     
     # _rel_rect #######################
     def getRelRect(self):
@@ -142,6 +143,16 @@ class MainView(View):
         pygame.display.set_caption(window_caption)
 
         self.subviews_dict = {}
+        self.createSubViews()
+
+    def createSubViews(self):
+        self.subviews_dict['render'] = RenderView()
+        self.subviews_dict['render'].parent = self
+        self.subviews_dict['render'].background = "palegreen3"
+
+        self.subviews_dict['hud'] = HUDView()
+        self.subviews_dict['hud'].parent = self
+        self.subviews_dict['hud'].background = "royalblue2"
 
     def setClickCallback(self, view_name, mouse_btn, cb_fn):
         self.subviews_dict[view_name].setClickCallback(mouse_btn, cb_fn)
@@ -162,3 +173,11 @@ class MainView(View):
         # https://stackoverflow.com/questions/19882415/closing-pygame-window
         print("View is quitting")
         pygame.display.quit()
+
+class RenderView(View):
+    def __init__(self):
+        super().__init__((WIDTH, HEIGHT-HUD_HEIGHT))
+
+class HUDView(View):
+    def __init__(self):
+        super().__init__((WIDTH, HUD_HEIGHT),rel_pos=(0, HEIGHT-HUD_HEIGHT))
