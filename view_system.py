@@ -3,7 +3,8 @@ from pygame.color import Color
 from constants import *
 
 class View:
-    def __init__(self, size, rel_pos=(0,0), parent=None, color_name="black", debug_name=""):
+    def __init__(self, size=(0,0), rel_pos=(0,0), parent=None,
+                 color_name="black", debug_name=""):
         # to create a view we need the size as a tuple of int
         # rel_pos is the topleft relative to the parent
         # (MainView doesn't have a parent)
@@ -15,12 +16,13 @@ class View:
         # _abs_rect stores the position relative to the window
         self._rel_rect = pygame.Rect(rel_pos, size)
 
-        self._setAbsRect(parent)
+        self._setAbsRect()
         if parent:
             parent.addSubView(self)
 
         self._subviews = []
         self._background_color = Color(color_name)
+        self._image = None
         self._debug_name = debug_name
 
         self._click_cb = {
@@ -29,19 +31,31 @@ class View:
             Mouse.BUTTON3: None,
         }
 
-    def _setAbsRect(self, parent):
+    def _setAbsRect(self):
         # not a setter! Misguiding name, I know.
         # calculates absolute position based on parent's position
-        if parent:
-            abs_x = self.rel_pos[0] + parent.getAbsRect().x
-            abs_y = self.rel_pos[1] + parent.getAbsRect().y
+        if self._parent:
+            abs_x = self.rel_pos[0] + self._parent.getAbsRect().x
+            abs_y = self.rel_pos[1] + self._parent.getAbsRect().y
         else:
             abs_x = self.rel_pos[0]
             abs_y = self.rel_pos[1]
         self._abs_rect = pygame.Rect((abs_x, abs_y), self._rel_rect.size)
 
+    def loadImage(self, img_path):
+        self._image    = img_path
+        self._surface  = pygame.image.load(img_path)
+        self._rel_rect = pygame.Rect(self.rel_pos, self._surface.get_size())
+        self._setAbsRect()
+    
+    def clearImage(self):
+        self._image = None
+        self._surface = pygame.Surface(self._surface.get_size())
+
     def draw(self):
-        self._surface.fill(self._background_color)
+        if not self._image:
+            self._surface.fill(self._background_color)
+
         for view in self._subviews:
             view.draw()
             self.blit(view)
@@ -63,7 +77,7 @@ class View:
         if len(self._subviews) > 0:
             for s in self._subviews: # For each subview
                 if s.getAbsRect().collidepoint(mouse_pos): # Was the subview clicked?
-                    return s.getClickedInstance(mouse_pos) # It's his problem now
+                    return s.getClickedInstance(mouse_pos) # Not my problem now
         return self
 
     def onClick(self, mouse_btns):
@@ -98,7 +112,7 @@ class View:
     @parent.setter
     def parent(self, p):
         self._parent = p
-        self._setAbsRect(p)
+        self._setAbsRect()
         p.addSubView(self)
     
     # _rel_rect #######################
@@ -113,7 +127,7 @@ class View:
     def addSubView(self, view):
         self._subviews.append(view)
 
-    # _background_color #####################
+    # _background_color ###############
     @property
     def background_color(self):
         return self._background_color
@@ -177,6 +191,11 @@ class MainView(View):
 class RenderView(View):
     def __init__(self):
         super().__init__((WIDTH, HEIGHT-HUD_HEIGHT))
+        self.subviews_dict = {}
+        self.subviews_dict["map"] = View(parent=self)
+        self.subviews_dict["map"].background_color = "coral1"
+        self.subviews_dict["map"].loadImage("test_img.jpg")
+        self.subviews_dict["map"].clearImage()
 
 class HUDView(View):
     def __init__(self):
