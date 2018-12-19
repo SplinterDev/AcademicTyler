@@ -3,7 +3,8 @@ from pygame.color import Color
 from constants import *
 
 class View:
-    def __init__(self, size, rel_pos=(0,0), parent=None, color_name="black", debug_name=""):
+    def __init__(self, size=(0,0), rel_pos=(0,0), parent=None,
+                 color_name="black", debug_name=""):
         # to create a view we need the size as a tuple of int
         # rel_pos is the topleft relative to the parent
         # (MainView doesn't have a parent)
@@ -15,12 +16,13 @@ class View:
         # _abs_rect stores the position relative to the window
         self._rel_rect = pygame.Rect(rel_pos, size)
 
-        self._setAbsRect(parent)
+        self._setAbsRect()
         if parent:
             parent.addSubView(self)
 
         self._subviews = []
-        self._background = Color(color_name)
+        self._background_color = Color(color_name)
+        self._image = None
         self._debug_name = debug_name
 
         self._click_cb = {
@@ -29,19 +31,39 @@ class View:
             Mouse.BUTTON3: None,
         }
 
-    def _setAbsRect(self, parent):
+    def _setAbsRect(self):
         # not a setter! Misguiding name, I know.
         # calculates absolute position based on parent's position
-        if parent:
-            abs_x = self.rel_pos[0] + parent.getAbsRect().x
-            abs_y = self.rel_pos[1] + parent.getAbsRect().y
+        if self._parent:
+            abs_x = self.rel_pos[0] + self._parent.getAbsRect().x
+            abs_y = self.rel_pos[1] + self._parent.getAbsRect().y
         else:
             abs_x = self.rel_pos[0]
             abs_y = self.rel_pos[1]
         self._abs_rect = pygame.Rect((abs_x, abs_y), self._rel_rect.size)
 
+    def loadImage(self, img_path):
+        self._image    = img_path
+        self._surface  = pygame.image.load(img_path)
+        self._rel_rect.topleft = self.rel_pos
+        self._rel_rect.size    = self._surface.get_size()
+        self._setAbsRect()
+    
+    def clearImage(self):
+        self._image = None
+        self._surface = pygame.Surface(self._surface.get_size())
+
+    def resize(self, new_size):
+        self._rel_rect.size = new_size
+        self._surface = pygame.transform.scale(self._surface, new_size)
+
+        self._setAbsRect()
+
+
     def draw(self):
-        self._surface.fill(self._background)
+        if not self._image:
+            self._surface.fill(self._background_color)
+
         for view in self._subviews:
             view.draw()
             self.blit(view)
@@ -63,7 +85,7 @@ class View:
         if len(self._subviews) > 0:
             for s in self._subviews: # For each subview
                 if s.getAbsRect().collidepoint(mouse_pos): # Was the subview clicked?
-                    return s.getClickedInstance(mouse_pos) # It's his problem now
+                    return s.getClickedInstance(mouse_pos) # Not my problem now
         return self
 
     def onClick(self, mouse_btns):
@@ -84,7 +106,7 @@ class View:
     @rel_pos.setter
     def rel_pos(self, pos):
         self._rel_rect.topleft = pos
-        self._setAbsRect(self._parent)
+        self._setAbsRect()#self._parent)
 
     # _surface ########################
     def getSurface(self):
@@ -98,12 +120,16 @@ class View:
     @parent.setter
     def parent(self, p):
         self._parent = p
-        self._setAbsRect(p)
+        self._setAbsRect()
         p.addSubView(self)
     
     # _rel_rect #######################
     def getRelRect(self):
         return self._rel_rect
+
+    # size ############################
+    def getSize(self):
+        return self._rel_rect.size
     
     # _abs_rect #######################
     def getAbsRect(self):
@@ -113,14 +139,14 @@ class View:
     def addSubView(self, view):
         self._subviews.append(view)
 
-    # _background #####################
+    # _background_color ###############
     @property
-    def background(self):
-        return self._background
+    def background_color(self):
+        return self._background_color
 
-    @background.setter
-    def background(self, color_name):
-        self._background = Color(color_name)
+    @background_color.setter
+    def background_color(self, color_name):
+        self._background_color = Color(color_name)
 
     # _click_cb #######################
     def setClickCallback(self, mouse_btn, cb_fn):
@@ -146,13 +172,16 @@ class MainView(View):
         self.createSubViews()
 
     def createSubViews(self):
-        self.subviews_dict['render'] = RenderView()
-        self.subviews_dict['render'].parent = self
-        self.subviews_dict['render'].background = "palegreen3"
+        self.subviews_dict["render"] = RenderView()
+        self.subviews_dict["render"].parent = self
+        self.subviews_dict["render"].background_color = "palegreen3"
 
-        self.subviews_dict['hud'] = HUDView()
-        self.subviews_dict['hud'].parent = self
-        self.subviews_dict['hud'].background = "royalblue2"
+        self.subviews_dict["hud"] = HUDView()
+        self.subviews_dict["hud"].parent = self
+        self.subviews_dict["hud"].background_color = "royalblue2"
+
+    def subview(self, name):
+        return self.subviews_dict[name]
 
     def setClickCallback(self, view_name, mouse_btn, cb_fn):
         self.subviews_dict[view_name].setClickCallback(mouse_btn, cb_fn)
@@ -168,6 +197,30 @@ class MainView(View):
 
         pygame.display.flip()
 
+    def moveMap(self, direction):
+        map_view = self.subview("render").subview("map")
+        old_pos = map_view.rel_pos
+        if direction == K_UP:
+            if old_pos[1]+MAP_SPEED <= 0:
+                map_view.rel_pos = (old_pos[0], old_pos[1]+MAP_SPEED)
+
+        if direction == K_RIGHT:
+            # max_x is the width of the render minus the width of the map
+            max_x = self.subview("render").getSize()[0]-map_view.getSize()[0]
+            if old_pos[0]-MAP_SPEED >= max_x:
+                map_view.rel_pos = (old_pos[0]-MAP_SPEED, old_pos[1])
+
+        if direction == K_DOWN:
+            # max_y is the height of the render minus the height of the map
+            max_y = self.subview("render").getSize()[1]-map_view.getSize()[1]
+            if old_pos[1]-MAP_SPEED >= max_y:
+                map_view.rel_pos = (old_pos[0], old_pos[1]-MAP_SPEED)
+
+        if direction == K_LEFT:
+            if old_pos[0]+MAP_SPEED <= 0:
+                map_view.rel_pos = (old_pos[0]+MAP_SPEED, old_pos[1])
+
+
     def quit(self):
         self.run = False
         # https://stackoverflow.com/questions/19882415/closing-pygame-window
@@ -177,6 +230,16 @@ class MainView(View):
 class RenderView(View):
     def __init__(self):
         super().__init__((WIDTH, HEIGHT-HUD_HEIGHT))
+        self.subviews_dict = {}
+        self.subviews_dict["map"] = View(parent=self)
+        self.subviews_dict["map"].background_color = "coral1"
+        self.subviews_dict["map"].loadImage("test_img.jpg")
+        # self.subviews_dict["map"].clearImage()
+        # self.subviews_dict["map"].resize(self.subviews_dict["map"].parent.getSize())
+
+    def subview(self, name):
+        return self.subviews_dict[name]
+
 
 class HUDView(View):
     def __init__(self):
